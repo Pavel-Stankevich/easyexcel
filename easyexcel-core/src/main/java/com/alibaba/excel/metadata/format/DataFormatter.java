@@ -379,6 +379,7 @@ public class DataFormatter {
         boolean mIsMonth = true;
         List<Integer> ms = new ArrayList<Integer>();
         boolean isElapsed = false;
+        boolean isSecondComplete = false;
         for (int j = 0; j < chars.length; j++) {
             char c = chars[j];
             if (c == '\'') {
@@ -407,7 +408,10 @@ public class DataFormatter {
                 } else if (c == 'm' || c == 'M') {
                     sb.append('m');
                 } else if (c == 's' || c == 'S') {
-                    sb.append('s');
+                    if (!isSecondComplete) {
+                        isSecondComplete = sb.indexOf("ss") != -1;
+                    }
+                    sb.append(isSecondComplete ? 'S' : 's');
                 } else {
                     sb.append(c);
                 }
@@ -426,12 +430,15 @@ public class DataFormatter {
                     sb.append('m');
                 }
             } else if (c == 's' || c == 'S') {
-                sb.append('s');
+                sb.append(isSecondComplete ? 'S' : 's');
                 // if 'M' precedes 's' it should be minutes ('m')
                 for (int index : ms) {
                     if (sb.charAt(index) == 'M') {
                         sb.replace(index, index + 1, "m");
                     }
+                }
+                if (!isSecondComplete) {
+                    isSecondComplete = sb.indexOf("ss") != -1;
                 }
                 mIsMonth = true;
                 ms.clear();
